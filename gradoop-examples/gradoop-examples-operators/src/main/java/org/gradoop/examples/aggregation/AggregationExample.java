@@ -15,9 +15,12 @@
  */
 package org.gradoop.examples.aggregation;
 
+import java.io.File;
+
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.gradoop.examples.aggregation.functions.AggregateListOfNames;
 import org.gradoop.examples.common.SocialNetworkGraph;
+import org.gradoop.flink.io.impl.dot.DOTDataSink;
 import org.gradoop.flink.model.impl.epgm.LogicalGraph;
 import org.gradoop.flink.model.impl.functions.epgm.ByLabel;
 import org.gradoop.flink.model.impl.operators.aggregation.functions.average.AverageVertexProperty;
@@ -35,7 +38,7 @@ public class AggregationExample {
   /**
    * Property key {@code birthday}
    */
-  private static final String PROPERTY_KEY_BIRTHDAY = "birthday";
+  private static final String PROPERTY_KEY_AGE = "birthday";
 
   /**
    * Property key {@code mean_age}
@@ -90,9 +93,16 @@ public class AggregationExample {
       .aggregate(
         new AggregateListOfNames(),
         // Calculate the average of the vertex property "birthday"
-        new AverageVertexProperty(PROPERTY_KEY_BIRTHDAY, PROPERTY_KEY_MEAN_AGE));
+        new AverageVertexProperty(PROPERTY_KEY_AGE, PROPERTY_KEY_MEAN_AGE));
 
     // print graph, which now contains the newly aggregated properties in the graph head
     result.print();
+
+    // print the graph to the console for verification
+    result.writeTo(new DOTDataSink("gradoop_exports" + File.separator + "aggregating.dot", true,
+        DOTDataSink.DotFormat.HTML));
+
+    // finally execute
+    env.execute("Aggregating - Task 1");
   }
 }
