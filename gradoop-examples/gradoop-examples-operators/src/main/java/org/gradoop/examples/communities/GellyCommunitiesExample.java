@@ -15,9 +15,12 @@
  */
 package org.gradoop.examples.communities;
 
+import java.io.File;
+
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.gradoop.examples.common.SocialNetworkGraph;
 import org.gradoop.flink.algorithms.gelly.labelpropagation.GellyLabelPropagation;
+import org.gradoop.flink.io.impl.dot.DOTDataSink;
 import org.gradoop.flink.model.impl.epgm.LogicalGraph;
 import org.gradoop.flink.util.FlinkAsciiGraphLoader;
 import org.gradoop.flink.util.GradoopFlinkConfig;
@@ -74,5 +77,13 @@ public class GellyCommunitiesExample {
 
     // print results
     graph.print();
+
+    // print the graph to the console for verification
+    graph.writeTo(new DOTDataSink("gradoop_exports" + File.separator + "GellyCommunitiesExample.dot", true,
+      DOTDataSink.DotFormat.HTML));
+
+    // finally execute
+    env.execute("GellyCommunitiesExample - Task 1");
+    System.out.println("End");
   }
 }

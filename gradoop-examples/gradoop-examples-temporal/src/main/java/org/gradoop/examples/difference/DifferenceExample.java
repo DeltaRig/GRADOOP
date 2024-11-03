@@ -55,8 +55,14 @@ public class DifferenceExample {
    * @throws Exception on failure
    */
   public static void main(String[] args) throws Exception {
+    // Record the start time
+    long startTime = System.nanoTime();
     // init execution environment
     ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
+
+    // Set parallelism level (number of processes/slots to be used)
+    int processes = 8;
+    env.setParallelism(processes);  // Adjust the number as needed
 
     // Load the bike graph
     TemporalGraph bikeGraph = TemporalCitiBikeGraph.getTemporalGraph(GradoopFlinkConfig.createConfig(env));
@@ -77,6 +83,15 @@ public class DifferenceExample {
 
     // print graph, which now contains the union of both snapshots with annotated elements
     // _diff: 0 (in both snapshots); _diff: 1 (only in second snapshot); _diff: -1 (only in first snapshot)
-    annotatedDiffGraph.print();
+    //annotatedDiffGraph.print();
+
+    // Record the end time and calculate elapsed time
+    long endTime = System.nanoTime();
+    long duration = (endTime - startTime) / 1_000_000; // Convert to milliseconds
+
+    System.out.println("Job completed in " + duration + " ms; using + " + processes + " processes");
+    
+
+
   }
 }

@@ -15,8 +15,13 @@
  */
 package org.gradoop.examples.patternmatch;
 
+import java.io.File;
+
 import org.apache.flink.api.java.ExecutionEnvironment;
+import org.gradoop.common.model.api.entities.GraphHead;
+import org.gradoop.common.model.impl.id.GradoopId;
 import org.gradoop.examples.common.SocialNetworkGraph;
+import org.gradoop.flink.io.impl.dot.DOTDataSink;
 import org.gradoop.flink.model.impl.epgm.GraphCollection;
 import org.gradoop.flink.model.impl.epgm.LogicalGraph;
 import org.gradoop.flink.util.FlinkAsciiGraphLoader;
@@ -51,23 +56,37 @@ public class GDLQueryExample {
   public static void main(String[] args) throws Exception {
     // create flink execution environment
     ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
-
     // create loader
     FlinkAsciiGraphLoader loader = new FlinkAsciiGraphLoader(GradoopFlinkConfig.createConfig(env));
-
     // load data
     loader.initDatabaseFromString(SocialNetworkGraph.getGraphGDLString());
-
     // load graph
     LogicalGraph socialNetwork = loader.getLogicalGraph();
-
     // run the query method (result will be a collection of matched subgraphs)
     GraphCollection matches = socialNetwork.query(
       "MATCH (u1:Person)<-[:hasModerator]-(f:Forum)" +
       "(u2:Person)<-[:hasMember]-(f)" +
       "WHERE u1.name = \"Alice\"");
-
     // print the matches
     matches.print();
+
+    // Retrieve an existing GradoopId from the first graph in the collection
+    //GradoopId validGradoopId = null;
+    //System.out.println("t");
+    //int count = 1;
+    //for (GraphHead graphHead : matches.getGraphHeads().collect()) {
+    //  validGradoopId = graphHead.getId();
+
+      // print the graph to the console for verification
+//      matches.getGraph(validGradoopId).writeTo(new DOTDataSink("gradoop_exports" + File.separator + "GDLQuery" + count +".dot", true,
+//        DOTDataSink.DotFormat.HTML));
+
+  //    count++;
+    //}
+
+
+    // finally execute
+   // env.execute("GDLQuery - Task 1");
+    System.out.println("GDLQuery");
   }
 }

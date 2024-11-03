@@ -17,12 +17,23 @@ package org.gradoop.examples.snapshot;
 
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.gradoop.examples.common.TemporalCitiBikeGraph;
+import org.gradoop.flink.io.impl.dot.DOTDataSink;
 import org.gradoop.flink.util.GradoopFlinkConfig;
+import org.gradoop.temporal.io.api.TemporalDataSink;
+import org.gradoop.temporal.io.impl.csv.TemporalCSVDataSink;
 import org.gradoop.temporal.model.impl.TemporalGraph;
 import org.gradoop.temporal.model.impl.functions.predicates.FromTo;
 
+import java.io.File;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+import org.gradoop.temporal.io.api.TemporalDataSink;
 
 /**
  * A self contained example on how to use the snapshot operator of Gradoop's TPGM model designed to analyse
@@ -60,8 +71,8 @@ public class SnapshotExample {
     TemporalGraph bikeGraph = TemporalCitiBikeGraph.getTemporalGraph(GradoopFlinkConfig.createConfig(env));
 
     // the rentals are captured in August 2019 so we define two query timestamps within this month
-    LocalDateTime startInterval = LocalDateTime.of(2019, 8, 10, 0, 0, 0);
-    LocalDateTime endInterval = startInterval.plus(10, ChronoUnit.DAYS);
+    LocalDateTime startInterval = LocalDateTime.of(2019, 9, 6, 0, 0, 0);
+    LocalDateTime endInterval = startInterval.plus(1, ChronoUnit.DAYS);
 
     // apply the snapshot operator of type "FROM t1 TO t2"
     TemporalGraph retrievedSnapshot = bikeGraph
@@ -70,5 +81,21 @@ public class SnapshotExample {
 
     // print graph, which now contains only trips happened between 10th and 20th August 2019
     retrievedSnapshot.print();
+
+    System.out.println("Try to show it in .dot");
+
+
+   // Create GradoopFlinkConfig with the Flink execution environment
+   GradoopFlinkConfig config = GradoopFlinkConfig.createConfig(env);
+
+    // Create a TemporalCSVDataSink with specified paths
+    TemporalDataSink dataSink = new TemporalCSVDataSink("gradoop_exports/exoprtSnapshor.csv", config);
+            
+    // Write the graph data to the data sink
+    retrievedSnapshot.writeTo(dataSink, true);  // true for overwrite option
+
+    // finally execute
+    //env.execute("Snapshot - Task 1");
+    System.out.println("C1");
   }
 }
